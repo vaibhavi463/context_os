@@ -8,7 +8,7 @@ on:
 
 jobs:
   quality-test-eval:
-    name: Lint, TypeCheck, Security, Test & AI Benchmark
+    name: Lint, Build, Test & AI Benchmark
     runs-on: ubuntu-latest
 
     services:
@@ -21,7 +21,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U contextos -d contextos_db"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -45,11 +45,21 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Dependencies
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Backend Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install hatchling bandit pytest-cov
           pip install -e .[dev]
+
+      - name: Install & Build Frontend
+        run: |
+          npm --prefix frontend install
+          npm --prefix frontend run build
 
       - name: Code Formatting & Ruff Lint
         run: |
@@ -59,15 +69,26 @@ jobs:
         run: |
           bandit -r backend/app -x tests/ || true
 
+      - name: Run Database Migrations
+        run: |
+          alembic upgrade head
+        env:
+          PYTHONPATH: backend:.
+          DATABASE_URL: postgresql+asyncpg://contextos:contextos_dev_pass@localhost:5432/contextos_db
+
       - name: Run Unit & Integration Tests with Coverage
         run: |
           pytest tests/ --cov=backend/app --cov-report=term-missing
         env:
+          PYTHONPATH: backend:.
           DATABASE_URL: postgresql+asyncpg://contextos:contextos_dev_pass@localhost:5432/contextos_db
 
       - name: Run AI Evaluation Benchmark Suite
         run: |
           python evals/run_evals.py
+        env:
+          PYTHONPATH: backend:evals:.
+          DATABASE_URL: postgresql+asyncpg://contextos:contextos_dev_pass@localhost:5432/contextos_db
 
       - name: Docker Image Build Check
         run: |
