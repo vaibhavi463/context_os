@@ -63,11 +63,15 @@ jobs:
 
       - name: Code Formatting & Ruff Lint
         run: |
-          ruff check backend/ app/ evals/ || true
+          ruff check backend/app evals/ || true
 
       - name: Static Security Scan (Bandit)
         run: |
           bandit -r backend/app -x tests/ || true
+
+      - name: Wait for Services Readiness
+        run: |
+          sleep 3
 
       - name: Run Database Migrations
         run: |

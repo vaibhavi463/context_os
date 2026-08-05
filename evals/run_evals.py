@@ -1,6 +1,10 @@
 import json
 import sys
-from metrics import calculate_recall_at_k, calculate_tool_precision, calculate_citation_precision
+
+try:
+    from evals.metrics import calculate_recall_at_k, calculate_tool_precision, calculate_citation_precision
+except ImportError:
+    from metrics import calculate_recall_at_k, calculate_tool_precision, calculate_citation_precision
 
 
 def run_benchmark() -> None:
