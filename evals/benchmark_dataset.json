@@ -1,0 +1,20 @@
+[
+  {
+    "query": "High CPU utilization on DB Primary Pool due to unindexed vector search query spikes.",
+    "expected_document": "Database Runbook.md",
+    "expected_tool": "get_system_incident_status",
+    "expected_citations": ["[Doc:Database Runbook.md#Chunk:0]"]
+  },
+  {
+    "query": "Reset rate limit bucket overflow for Enterprise Account ACC-9941.",
+    "expected_document": "Rate Limit Policy.md",
+    "expected_tool": "execute_account_remediation",
+    "expected_citations": ["[Doc:Rate Limit Policy.md#Chunk:1]"]
+  },
+  {
+    "query": "Escalate support ticket TICKET-9921 regarding API 502 Bad Gateway errors.",
+    "expected_document": "Escalation Runbook.md",
+    "expected_tool": "update_ticket_status",
+    "expected_citations": ["[Doc:Escalation Runbook.md#Chunk:0]"]
+  }
+]
