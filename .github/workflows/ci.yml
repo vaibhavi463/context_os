@@ -53,7 +53,7 @@ jobs:
       - name: Install Backend Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install hatchling bandit pytest-cov
+          pip install setuptools bandit pytest-cov
           pip install -e .[dev]
 
       - name: Install & Build Frontend
@@ -63,11 +63,11 @@ jobs:
 
       - name: Code Formatting & Ruff Lint
         run: |
-          ruff check backend/app evals/ || true
+          ruff check backend/app evals/
 
       - name: Static Security Scan (Bandit)
         run: |
-          bandit -r backend/app -x tests/ || true
+          bandit -r backend/app -x tests/
 
       - name: Wait for Services Readiness
         run: |

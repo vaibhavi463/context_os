@@ -11,9 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir hatchling
-
 COPY pyproject.toml ./
+COPY backend /app/backend
 RUN pip install --no-cache-dir .
 
 FROM python:3.12-slim AS runner
