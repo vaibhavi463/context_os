@@ -12,22 +12,18 @@ logger = structlog.get_logger()
 # Custom Exception Hierarchy
 class LLMException(Exception):
     """Base exception for LLM provider errors."""
-    pass
 
 
 class LLMTimeoutException(LLMException):
     """Exception raised when LLM provider times out."""
-    pass
 
 
 class LLMRateLimitException(LLMException):
     """Exception raised when LLM provider rate limit is exceeded."""
-    pass
 
 
 class LLMProviderException(LLMException):
     """Exception raised for general LLM API failure."""
-    pass
 
 
 @dataclass
@@ -203,7 +199,7 @@ class GeminiProvider(BaseLLMProvider):
                 completion_tokens=completion_tokens,
                 estimated_cost_usd=cost
             )
-        except Exception as e:
+        except (ImportError, TimeoutError, ConnectionError, RuntimeError) as e:
             logger.warning("Gemini completion API call failed, falling back to mock provider", error=str(e))
             mock = MockLLMProvider()
             return await mock.generate_completion(messages, tools, temperature)
@@ -236,7 +232,7 @@ class GeminiProvider(BaseLLMProvider):
             for chunk in response:
                 if chunk.text:
                     yield chunk.text
-        except Exception as e:
+        except (ImportError, TimeoutError, ConnectionError, RuntimeError) as e:
             logger.warning("Gemini stream completion failed, falling back to mock provider", error=str(e))
             mock = MockLLMProvider()
             async for token in mock.stream_completion(messages, tools, temperature):
