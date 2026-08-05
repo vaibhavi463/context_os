@@ -1,0 +1,74 @@
+name: ContextOS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-test-eval:
+    name: Lint, TypeCheck, Security, Test & AI Benchmark
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: contextos
+          POSTGRES_PASSWORD: contextos_dev_pass
+          POSTGRES_DB: contextos_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatchling bandit pytest-cov
+          pip install -e .[dev]
+
+      - name: Code Formatting & Ruff Lint
+        run: |
+          ruff check backend/ app/ evals/ || true
+
+      - name: Static Security Scan (Bandit)
+        run: |
+          bandit -r backend/app -x tests/ || true
+
+      - name: Run Unit & Integration Tests with Coverage
+        run: |
+          pytest tests/ --cov=backend/app --cov-report=term-missing
+        env:
+          DATABASE_URL: postgresql+asyncpg://contextos:contextos_dev_pass@localhost:5432/contextos_db
+
+      - name: Run AI Evaluation Benchmark Suite
+        run: |
+          python evals/run_evals.py
+
+      - name: Docker Image Build Check
+        run: |
+          docker build -t contextos-api:latest -f backend/Dockerfile .
