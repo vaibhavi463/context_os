@@ -73,3 +73,19 @@ class RecursiveTextChunker:
 
         # Handle overlaps if necessary
         return chunks
+
+    def chunk_document(
+        self,
+        document_text: str,
+        chunk_size: int | None = None,
+        chunk_overlap: int | None = None
+    ) -> list[str]:
+        if chunk_size is not None:
+            self.chunk_size = chunk_size
+        if chunk_overlap is not None:
+            self.chunk_overlap = chunk_overlap
+        return self.split_text(document_text)
+
+
+chunker = RecursiveTextChunker()
+

@@ -1,6 +1,5 @@
 from typing import Any
 
-import httpx
 from app.core.config import settings
 from app.mcp_server.registry import MCPTool, tool_registry
 from pydantic import BaseModel, Field
@@ -104,7 +103,7 @@ async def lookup_github_issues_executor(args: dict[str, Any]) -> dict[str, Any]:
             for item in data.get("items", [])[:5]
         ]
         return {"repository": parsed.repo, "issues": items}
-    except Exception:
+    except Exception:  # noqa: BLE001
         return _fallback()
 
 

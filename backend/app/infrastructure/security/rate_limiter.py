@@ -1,7 +1,8 @@
 import time
-from fastapi import HTTPException, status
+
 import redis.asyncio as redis
 import structlog
+from fastapi import HTTPException, status
 
 logger = structlog.get_logger(__name__)
 
@@ -58,7 +59,7 @@ class RedisSlidingWindowRateLimiter:
                 )
         except HTTPException:
             raise
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             logger.error("Redis rate limiter check error", error=str(exc))
             # Fail open for system resilience if Redis connection fails
             return

@@ -57,7 +57,7 @@ async def get_telemetry_metrics(
         "total_documents": doc_count,
         "total_investigations": inv_count,
         "total_audit_events": audit_count,
-        "estimated_token_cost_usd": 0.045200,
+        "estimated_token_cost_usd": 0.045200,  # nosec B105
         "active_investigations": inv_count,
         "error_rate": 0.001
     }

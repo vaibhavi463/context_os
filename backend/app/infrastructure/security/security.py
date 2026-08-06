@@ -16,17 +16,31 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_access_token(subject: str | Any, tenant_id: str, role: str, expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    subject: str | dict[str, Any] | Any,
+    tenant_id: str | None = None,
+    role: str | None = None,
+    expires_delta: timedelta | None = None
+) -> str:
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
         expire = datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
+    if isinstance(subject, dict):
+        sub_val = str(subject.get("sub", subject.get("id", "")))
+        t_id = str(subject.get("tenant_id", tenant_id or "default"))
+        r_val = str(subject.get("role", role or "ops_engineer"))
+    else:
+        sub_val = str(subject)
+        t_id = str(tenant_id or "default")
+        r_val = str(role or "ops_engineer")
+
     to_encode = {
         "exp": expire,
-        "sub": str(subject),
-        "tenant_id": str(tenant_id),
-        "role": role,
+        "sub": sub_val,
+        "tenant_id": t_id,
+        "role": r_val,
         "type": "access"
     }
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)

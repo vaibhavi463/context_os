@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
-
-from app.domain.retrieval.services.hybrid_search import SearchResult
+from typing import Any
 
 
 @dataclass
@@ -16,26 +15,39 @@ class Citation:
 
 class CitationBuilder:
     @staticmethod
-    def build_citations(search_results: Sequence[SearchResult]) -> tuple[str, list[dict]]:
+    def build_citations(search_results: Sequence[Any]) -> tuple[str, list[dict]]:
         citations: list[dict] = []
         formatted_context_blocks: list[str] = []
 
         for idx, res in enumerate(search_results, start=1):
-            ref_tag = f"[Doc:{res.document_title}#Chunk:{res.chunk_index}]"
+            if isinstance(res, dict):
+                doc_title = res.get("document_title", "Untitled")
+                chunk_idx = res.get("chunk_index", 0)
+                chunk_id = str(res.get("chunk_id", ""))
+                doc_id = str(res.get("document_id", ""))
+                content = res.get("content") or res.get("chunk_text", "")
+            else:
+                doc_title = res.document_title
+                chunk_idx = res.chunk_index
+                chunk_id = str(res.chunk_id)
+                doc_id = str(res.document_id)
+                content = res.content
+
+            ref_tag = f"[Doc:{doc_title}#Chunk:{chunk_idx}]"
             citation_obj = {
-                "chunk_id": str(res.chunk_id),
-                "document_id": str(res.document_id),
-                "document_title": res.document_title,
-                "chunk_index": res.chunk_index,
-                "snippet": res.content[:200] + "...",
-                "reference_tag": ref_tag
+                "chunk_id": chunk_id,
+                "document_id": doc_id,
+                "document_title": doc_title,
+                "chunk_index": chunk_idx,
+                "snippet": content[:200] + "..." if len(content) > 200 else content,
+                "reference_tag": ref_tag,
             }
             citations.append(citation_obj)
 
             block = (
                 f"Source {idx}: {ref_tag}\n"
-                f"Title: {res.document_title}\n"
-                f"Content:\n{res.content}\n"
+                f"Title: {doc_title}\n"
+                f"Content:\n{content}\n"
             )
             formatted_context_blocks.append(block)
 

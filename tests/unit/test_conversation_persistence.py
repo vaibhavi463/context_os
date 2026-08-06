@@ -16,7 +16,7 @@ async def test_conversation_context_window_pruning():
     dummy_investigation = Investigation(
         id=uuid.uuid4(),
         tenant_id="tenant_test",
-        created_by_user_id=dummy_user.id,
+        user_id=dummy_user.id,
         title="Test Investigation Context Window",
         status="ACTIVE",
     )

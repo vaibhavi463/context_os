@@ -1,7 +1,8 @@
 import time
-import structlog
+from collections.abc import Awaitable, Callable
 from typing import Any, TypeVar
-from collections.abc import Callable, Awaitable
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

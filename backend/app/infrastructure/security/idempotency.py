@@ -1,7 +1,6 @@
-from typing import Any
-from fastapi import HTTPException, Header, status
 import redis.asyncio as redis
 import structlog
+from fastapi import Header, HTTPException, status
 
 logger = structlog.get_logger(__name__)
 

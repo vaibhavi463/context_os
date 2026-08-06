@@ -25,7 +25,7 @@ class BaseRepository(Generic[ModelType]):  # noqa: UP046
     async def get_by_id_tenant(self, id: uuid.UUID | str, tenant_id: str) -> ModelType | None:
         if isinstance(id, str):
             id = uuid.UUID(id)
-        stmt = select(self.model).where(self.model.id == id, getattr(self.model, "tenant_id") == tenant_id)
+        stmt = select(self.model).where(self.model.id == id, getattr(self.model, "tenant_id") == tenant_id)  # noqa: B009
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -35,7 +35,7 @@ class BaseRepository(Generic[ModelType]):  # noqa: UP046
         return result.scalars().all()
 
     async def get_all_tenant(self, tenant_id: str, limit: int = 100, offset: int = 0) -> Sequence[ModelType]:
-        stmt = select(self.model).where(getattr(self.model, "tenant_id") == tenant_id).limit(limit).offset(offset)
+        stmt = select(self.model).where(getattr(self.model, "tenant_id") == tenant_id).limit(limit).offset(offset)  # noqa: B009
         result = await self.session.execute(stmt)
         return result.scalars().all()
 

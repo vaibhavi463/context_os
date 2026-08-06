@@ -1,17 +1,20 @@
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 from fastapi import HTTPException
-from unittest.mock import AsyncMock
 
 from app.infrastructure.security.rate_limiter import RedisSlidingWindowRateLimiter
 
 
 @pytest.mark.asyncio
 async def test_rate_limiter_exceeded():
-    mock_redis = AsyncMock()
-    # Mock pipeline return where count exceeds quota
+    mock_redis = MagicMock()
     mock_pipeline = AsyncMock()
     mock_pipeline.execute.return_value = [None, 105, None, None]
-    mock_redis.pipeline.return_value.__aenter__.return_value = mock_pipeline
+    mock_pipeline_ctx = MagicMock()
+    mock_pipeline_ctx.__aenter__.return_value = mock_pipeline
+    mock_pipeline_ctx.__aexit__.return_value = None
+    mock_redis.pipeline.return_value = mock_pipeline_ctx
 
     limiter = RedisSlidingWindowRateLimiter(redis_client=mock_redis)
 

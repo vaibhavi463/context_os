@@ -1,10 +1,10 @@
-from typing import Any
 from collections.abc import Callable
+from typing import Any
+
 import httpx
 import structlog
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-
 from app.infrastructure.external.circuit_breaker import CircuitBreaker, CircuitBreakerOpenException
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 logger = structlog.get_logger(__name__)
 
