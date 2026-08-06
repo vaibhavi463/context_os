@@ -1,0 +1,23 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "name": "context-os",
+      "version": "1.0.0",
+      "type": "application"
+    }
+  },
+  "components": [
+    { "name": "fastapi", "version": "0.111.0", "purl": "pkg:pypi/fastapi@0.111.0" },
+    { "name": "uvicorn", "version": "0.30.0", "purl": "pkg:pypi/uvicorn@0.30.0" },
+    { "name": "sqlalchemy", "version": "2.0.30", "purl": "pkg:pypi/sqlalchemy@2.0.30" },
+    { "name": "asyncpg", "version": "0.29.0", "purl": "pkg:pypi/asyncpg@0.29.0" },
+    { "name": "pgvector", "version": "0.2.5", "purl": "pkg:pypi/pgvector@0.2.5" },
+    { "name": "redis", "version": "5.0.4", "purl": "pkg:pypi/redis@5.0.4" },
+    { "name": "google-genai", "version": "0.1.1", "purl": "pkg:pypi/google-genai@0.1.1" },
+    { "name": "mcp", "version": "1.0.0", "purl": "pkg:pypi/mcp@1.0.0" },
+    { "name": "structlog", "version": "24.2.0", "purl": "pkg:pypi/structlog@24.2.0" }
+  ]
+}
