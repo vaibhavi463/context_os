@@ -28,7 +28,8 @@ class AgentOrchestrator:
         db: AsyncSession,
         user: User,
         investigation: Investigation,
-        user_query: str
+        user_query: str,
+        max_history_turns: int = 10
     ) -> AgentResult:
         # 1. Hybrid Evidence Retrieval
         search_results = await hybrid_search_service.search(
@@ -46,6 +47,10 @@ class AgentOrchestrator:
             .order_by(InvestigationMessage.created_at.asc())
         )
         past_msgs = (await db.execute(history_stmt)).scalars().all()
+
+        # Sliding context window pruning
+        if len(past_msgs) > max_history_turns * 2:
+            past_msgs = past_msgs[-(max_history_turns * 2):]
 
         messages: list[LLMMessage] = [
             LLMMessage(
@@ -77,7 +82,6 @@ class AgentOrchestrator:
         pending_approval_id: str | None = None
 
         if "remediation" in user_query.lower() or "reset" in user_query.lower():
-            # Trigger write tool execution check
             tool_name = "execute_account_remediation"
             tool = tool_registry.get_tool(tool_name)
             if tool and tool.requires_approval:
@@ -98,6 +102,21 @@ class AgentOrchestrator:
         final_content = llm_resp.content
         if pending_approval_id:
             final_content += f"\n\n[ACTION REQUIRED]: This remediation action requires operator approval. Approval ID: #{pending_approval_id[:8]}."
+
+        # 5. Persist user and model messages into database
+        user_msg = InvestigationMessage(
+            investigation_id=investigation.id,
+            sender_type="USER",
+            content=user_query
+        )
+        agent_msg = InvestigationMessage(
+            investigation_id=investigation.id,
+            sender_type="AGENT",
+            content=final_content
+        )
+        db.add(user_msg)
+        db.add(agent_msg)
+        await db.commit()
 
         return AgentResult(
             content=final_content,
