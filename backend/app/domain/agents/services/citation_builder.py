@@ -1,6 +1,6 @@
+from collections.abc import Sequence
 from dataclasses import dataclass
-import uuid
-from typing import Sequence
+
 from app.domain.retrieval.services.hybrid_search import SearchResult
 
 

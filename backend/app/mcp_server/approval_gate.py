@@ -1,14 +1,14 @@
 import hashlib
 import json
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
-from sqlalchemy.ext.asyncio import AsyncSession
-from jose import jwt, JWTError
 
 from app.core.config import settings
-from app.models.domain_models import PendingApproval, User
 from app.mcp_server.registry import MCPTool
+from app.models.domain_models import PendingApproval, User
+from jose import JWTError, jwt
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ApprovalGate:
@@ -27,7 +27,7 @@ class ApprovalGate:
         expires_minutes: int = 15
     ) -> str:
         args_hash = cls.compute_args_hash(tool_args)
-        expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
+        expire = datetime.now(UTC) + timedelta(minutes=expires_minutes)
         payload = {
             "sub": str(requester_id),
             "tenant_id": str(tenant_id),
@@ -47,9 +47,7 @@ class ApprovalGate:
             if payload.get("tool_name") != tool_name:
                 return False
             expected_hash = cls.compute_args_hash(tool_args)
-            if payload.get("args_hash") != expected_hash:
-                return False
-            return True
+            return payload.get("args_hash") == expected_hash
         except JWTError:
             return False
 
@@ -69,7 +67,7 @@ class ApprovalGate:
             tool_args=tool_args
         )
         idempotency_key = f"idemp_{uuid.uuid4()}"
-        expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expires_at = datetime.now(UTC) + timedelta(minutes=15)
 
         pending = PendingApproval(
             tenant_id=user.tenant_id,

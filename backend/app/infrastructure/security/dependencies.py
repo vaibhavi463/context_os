@@ -1,13 +1,13 @@
 import uuid
-from typing import Annotated, Callable
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from typing import Annotated
 
 from app.db.session import get_db
 from app.infrastructure.security.security import decode_token
-from app.models.domain_models import User, Tenant
+from app.models.domain_models import User
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 

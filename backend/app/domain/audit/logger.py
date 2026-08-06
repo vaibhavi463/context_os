@@ -1,9 +1,7 @@
-import uuid
 from typing import Any
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 from app.models.domain_models import AuditLog, User
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AuditLogger:

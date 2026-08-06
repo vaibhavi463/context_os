@@ -1,13 +1,11 @@
 import hashlib
-import uuid
-from typing import Sequence
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 from app.domain.retrieval.services.chunker import RecursiveTextChunker
 from app.infrastructure.llm.embeddings import embedding_service
 from app.models.domain_models import Document, DocumentChunk, User
 from app.schemas.documents import DocumentCreate
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class IngestionService:

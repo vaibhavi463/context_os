@@ -1,16 +1,14 @@
-import uuid
 from dataclasses import dataclass
 from typing import Any
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
-from app.domain.retrieval.services.hybrid_search import hybrid_search_service
 from app.domain.agents.services.citation_builder import citation_builder
-from app.infrastructure.llm.provider import get_llm_provider, LLMMessage, LLMResponse
-from app.mcp_server.registry import tool_registry
-from app.mcp_server.guards.rbac_guard import RBACScopeGuard
+from app.domain.retrieval.services.hybrid_search import hybrid_search_service
+from app.infrastructure.llm.provider import LLMMessage, get_llm_provider
 from app.mcp_server.approval_gate import approval_gate
-from app.models.domain_models import User, Investigation, InvestigationMessage
+from app.mcp_server.registry import tool_registry
+from app.models.domain_models import Investigation, InvestigationMessage, User
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dataclass

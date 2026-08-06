@@ -1,11 +1,9 @@
 import uuid
 from dataclasses import dataclass
-from typing import Sequence
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text, select
 
 from app.infrastructure.llm.embeddings import embedding_service
-from app.models.domain_models import DocumentChunk, Document
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dataclass

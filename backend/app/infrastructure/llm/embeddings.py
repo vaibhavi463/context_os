@@ -1,8 +1,8 @@
 import hashlib
 import math
-import structlog
-from typing import Sequence
+from collections.abc import Sequence
 
+import structlog
 from app.core.config import settings
 
 logger = structlog.get_logger()
@@ -16,7 +16,7 @@ class EmbeddingService:
         """Generates a deterministic normalized 768-d vector from text SHA256 hash."""
         vec: list[float] = []
         for i in range(self.dimension):
-            h = hashlib.sha256(f"{text}:{i}".encode("utf-8")).digest()
+            h = hashlib.sha256(f"{text}:{i}".encode()).digest()
             val = int.from_bytes(h[:4], byteorder="big", signed=True) / (2**31 - 1)
             vec.append(val)
         
@@ -40,7 +40,7 @@ class EmbeddingService:
             if response.embedding and response.embedding.values:
                 return list(response.embedding.values)
             return self._generate_mock_embedding(text)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Gemini embedding API call failed, falling back to mock generator", error=str(e))
             return self._generate_mock_embedding(text)
 

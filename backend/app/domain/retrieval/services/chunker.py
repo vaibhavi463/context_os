@@ -38,15 +38,29 @@ class RecursiveTextChunker:
                     sub_chunk: list[str] = []
                     sub_len = 0
                     for sent in sentences:
-                        sent_len = len(sent.split())
-                        if sub_len + sent_len <= self.chunk_size:
-                            sub_chunk.append(sent)
-                            sub_len += sent_len
-                        else:
+                        words = sent.split()
+                        if len(words) > self.chunk_size:
                             if sub_chunk:
                                 chunks.append(" ".join(sub_chunk))
-                            sub_chunk = [sent]
-                            sub_len = sent_len
+                                sub_chunk = []
+                                sub_len = 0
+                            for i in range(0, len(words), self.chunk_size):
+                                word_sub = words[i:i + self.chunk_size]
+                                if len(word_sub) == self.chunk_size:
+                                    chunks.append(" ".join(word_sub))
+                                else:
+                                    sub_chunk = word_sub
+                                    sub_len = len(word_sub)
+                        else:
+                            sent_len = len(words)
+                            if sub_len + sent_len <= self.chunk_size:
+                                sub_chunk.append(sent)
+                                sub_len += sent_len
+                            else:
+                                if sub_chunk:
+                                    chunks.append(" ".join(sub_chunk))
+                                sub_chunk = [sent]
+                                sub_len = sent_len
                     if sub_chunk:
                         current_chunk = sub_chunk
                         current_length = sub_len

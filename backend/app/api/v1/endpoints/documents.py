@@ -1,13 +1,14 @@
-from typing import Annotated, Sequence
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from collections.abc import Sequence
+from typing import Annotated
 
 from app.db.session import get_db
 from app.domain.retrieval.services.ingestion import ingestion_service
-from app.infrastructure.security.dependencies import get_current_user, RequireRole
+from app.infrastructure.security.dependencies import RequireRole, get_current_user
 from app.models.domain_models import Document, DocumentChunk, User
-from app.schemas.documents import DocumentCreate, DocumentResponse, DocumentChunkResponse
+from app.schemas.documents import DocumentChunkResponse, DocumentCreate, DocumentResponse
+from fastapi import APIRouter, Depends, status
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 

@@ -1,11 +1,11 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 
 from app.db.session import get_db
 from app.infrastructure.security.dependencies import RequireRole
 from app.models.domain_models import AuditLog, Document, Investigation, User
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -57,5 +57,5 @@ async def get_telemetry_metrics(
         "total_documents": doc_count,
         "total_investigations": inv_count,
         "total_audit_events": audit_count,
-        "estimated_token_cost_usd": 0.045200
+        "estimated_token_cost_usd": 0.045200  # nosec B105
     }

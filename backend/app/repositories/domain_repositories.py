@@ -1,11 +1,18 @@
 import uuid
-from typing import Sequence
+from collections.abc import Sequence
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 
 from app.models.domain_models import (
-    Tenant, User, Document, DocumentChunk,
-    Investigation, InvestigationMessage, PendingApproval, AuditLog
+    AuditLog,
+    Document,
+    DocumentChunk,
+    Investigation,
+    InvestigationMessage,
+    PendingApproval,
+    Tenant,
+    User,
 )
 from app.repositories.base import BaseRepository
 

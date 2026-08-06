@@ -1,5 +1,7 @@
-from dataclasses import dataclass, field
-from typing import Callable, Any
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
+
 from pydantic import BaseModel
 
 

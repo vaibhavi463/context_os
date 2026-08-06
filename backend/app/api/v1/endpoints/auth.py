@@ -1,20 +1,20 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 import re
+from typing import Annotated, Any
 
 from app.core.config import settings
 from app.db.session import get_db
+from app.infrastructure.security.dependencies import get_current_user
 from app.infrastructure.security.security import (
+    create_access_token,
     get_password_hash,
     verify_password,
-    create_access_token
 )
-from app.infrastructure.security.dependencies import get_current_user
-from app.models.domain_models import User, Tenant
-from app.schemas.auth import UserRegister, UserResponse, TokenResponse, UserLogin
+from app.models.domain_models import Tenant, User
+from app.schemas.auth import TokenResponse, UserRegister, UserResponse
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -82,7 +82,7 @@ async def login_user(
     )
     return {
         "access_token": access_token,
-        "token_type": "bearer",
+        "token_type": "bearer",  # nosec B105
         "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     }
 

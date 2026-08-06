@@ -6,16 +6,13 @@ from typing import Any
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     Boolean,
-    Column,
     DateTime,
-    Enum,
     ForeignKey,
-    Index,
     Integer,
     Numeric,
     String,
     Text,
-    func
+    func,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship

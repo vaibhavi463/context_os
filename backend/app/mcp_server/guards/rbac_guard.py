@@ -1,5 +1,5 @@
+from app.mcp_server.registry import MCPTool, tool_registry
 from fastapi import HTTPException, status
-from app.mcp_server.registry import tool_registry, MCPTool
 
 
 class RBACScopeGuard:

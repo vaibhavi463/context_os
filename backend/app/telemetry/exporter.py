@@ -1,8 +1,9 @@
 import time
-from typing import Callable
-from fastapi import Request, Response
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from collections.abc import Callable
+
 import structlog
+from fastapi import Request, Response
+from prometheus_client import Counter, Histogram
 
 logger = structlog.get_logger()
 

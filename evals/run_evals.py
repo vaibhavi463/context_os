@@ -2,16 +2,24 @@ import json
 import sys
 
 try:
-    from evals.metrics import calculate_recall_at_k, calculate_tool_precision, calculate_citation_precision
+    from evals.metrics import (
+        calculate_citation_precision,
+        calculate_recall_at_k,
+        calculate_tool_precision,
+    )
 except ImportError:
-    from metrics import calculate_recall_at_k, calculate_tool_precision, calculate_citation_precision
+    from metrics import (
+        calculate_citation_precision,
+        calculate_recall_at_k,
+        calculate_tool_precision,
+    )
 
 
 def run_benchmark() -> None:
     try:
         with open("evals/benchmark_dataset.json", "r") as f:
             dataset = json.load(f)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Failed to load dataset: {e}")
         sys.exit(1)
 

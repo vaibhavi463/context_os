@@ -1,21 +1,21 @@
 from app.models.domain_models import (
-    Tenant,
-    User,
+    AuditLog,
     Document,
     DocumentChunk,
     Investigation,
     InvestigationMessage,
     PendingApproval,
-    AuditLog
+    Tenant,
+    User,
 )
 
 __all__ = [
-    "Tenant",
-    "User",
+    "AuditLog",
     "Document",
     "DocumentChunk",
     "Investigation",
     "InvestigationMessage",
     "PendingApproval",
-    "AuditLog",
+    "Tenant",
+    "User",
 ]

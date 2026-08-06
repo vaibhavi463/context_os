@@ -1,13 +1,13 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 from app.db.session import get_db
-from app.infrastructure.security.dependencies import get_current_user, RequireRole
-from app.models.domain_models import PendingApproval, AuditLog, User
+from app.infrastructure.security.dependencies import RequireRole, get_current_user
+from app.models.domain_models import AuditLog, PendingApproval, User
 from app.schemas.approvals import ApprovalDecisionRequest, PendingApprovalResponse
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/approvals", tags=["Approvals"])
 
@@ -53,7 +53,7 @@ async def decide_approval(
             detail=f"Approval request is already in status '{approval.status}'."
         )
 
-    if datetime.now(timezone.utc) > approval.expires_at:
+    if datetime.now(UTC) > approval.expires_at:
         approval.status = "EXPIRED"
         await db.commit()
         raise HTTPException(
@@ -64,7 +64,7 @@ async def decide_approval(
     new_status = "APPROVED" if payload.decision == "APPROVE" else "REJECTED"
     approval.status = new_status
     approval.approver_id = current_user.id
-    approval.decided_at = datetime.now(timezone.utc)
+    approval.decided_at = datetime.now(UTC)
 
     # Record Audit Log
     audit = AuditLog(

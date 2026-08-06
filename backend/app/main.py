@@ -1,10 +1,10 @@
 import uuid
-import time
-from typing import Callable, AsyncGenerator
+from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, Response, status
-from fastapi.middleware.cors import CORSMiddleware
+
 import structlog
+from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_v1_router
 from app.telemetry.exporter import prometheus_telemetry_middleware

@@ -1,14 +1,17 @@
-from typing import Generic, TypeVar, Type, Any, Sequence
 import uuid
+from collections.abc import Sequence
+from typing import Any, Generic, TypeVar
+
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete
+
 from app.db.session import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
 
 
-class BaseRepository(Generic[ModelType]):
-    def __init__(self, model: Type[ModelType], session: AsyncSession) -> None:
+class BaseRepository(Generic[ModelType]):  # noqa: UP046
+    def __init__(self, model: type[ModelType], session: AsyncSession) -> None:
         self.model = model
         self.session = session
 

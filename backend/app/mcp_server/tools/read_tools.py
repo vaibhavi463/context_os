@@ -1,9 +1,9 @@
 from typing import Any
-from pydantic import BaseModel, Field
-import httpx
 
+import httpx
 from app.core.config import settings
 from app.mcp_server.registry import MCPTool, tool_registry
+from pydantic import BaseModel, Field
 
 
 # 1. search_customer_accounts
@@ -84,7 +84,7 @@ async def lookup_github_issues_executor(args: dict[str, Any]) -> dict[str, Any]:
                         for item in data.get("items", [])[:5]
                     ]
                     return {"repository": parsed.repo, "issues": items}
-        except Exception:
+        except Exception:  # nosec B110 # noqa: BLE001, S110
             pass
 
     # Mock fallback

@@ -1,10 +1,7 @@
-import json
 import asyncio
-from typing import Annotated, AsyncGenerator
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import StreamingResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+import json
+from collections.abc import AsyncGenerator
+from typing import Annotated
 
 from app.db.session import get_db
 from app.domain.agents.orchestrator import agent_orchestrator
@@ -14,8 +11,12 @@ from app.schemas.investigations import (
     InvestigationCreate,
     InvestigationResponse,
     MessageCreate,
-    MessageResponse
+    MessageResponse,
 )
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/investigations", tags=["Investigations"])
 

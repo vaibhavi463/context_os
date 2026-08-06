@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import AsyncGenerator, Any
-from dataclasses import dataclass, field
-import structlog
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from collections.abc import AsyncGenerator
+from dataclasses import dataclass
+from typing import Any
 
+import structlog
 from app.core.config import settings
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 logger = structlog.get_logger()
 
@@ -12,22 +13,18 @@ logger = structlog.get_logger()
 # Custom Exception Hierarchy
 class LLMException(Exception):
     """Base exception for LLM provider errors."""
-    pass
 
 
 class LLMTimeoutException(LLMException):
     """Exception raised when LLM provider times out."""
-    pass
 
 
 class LLMRateLimitException(LLMException):
     """Exception raised when LLM provider rate limit is exceeded."""
-    pass
 
 
 class LLMProviderException(LLMException):
     """Exception raised for general LLM API failure."""
-    pass
 
 
 @dataclass
@@ -203,7 +200,7 @@ class GeminiProvider(BaseLLMProvider):
                 completion_tokens=completion_tokens,
                 estimated_cost_usd=cost
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Gemini completion API call failed, falling back to mock provider", error=str(e))
             mock = MockLLMProvider()
             return await mock.generate_completion(messages, tools, temperature)
@@ -236,7 +233,7 @@ class GeminiProvider(BaseLLMProvider):
             for chunk in response:
                 if chunk.text:
                     yield chunk.text
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Gemini stream completion failed, falling back to mock provider", error=str(e))
             mock = MockLLMProvider()
             async for token in mock.stream_completion(messages, tools, temperature):

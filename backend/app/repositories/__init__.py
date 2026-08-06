@@ -1,17 +1,17 @@
 from app.repositories.base import BaseRepository
 from app.repositories.domain_repositories import (
-    UserRepository,
-    DocumentRepository,
-    InvestigationRepository,
     ApprovalRepository,
     AuditRepository,
+    DocumentRepository,
+    InvestigationRepository,
+    UserRepository,
 )
 
 __all__ = [
-    "BaseRepository",
-    "UserRepository",
-    "DocumentRepository",
-    "InvestigationRepository",
     "ApprovalRepository",
     "AuditRepository",
+    "BaseRepository",
+    "DocumentRepository",
+    "InvestigationRepository",
+    "UserRepository",
 ]
