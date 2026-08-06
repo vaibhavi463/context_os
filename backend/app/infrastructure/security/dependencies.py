@@ -60,3 +60,29 @@ class RequireRole:
                 detail=f"User role '{current_user.role}' lacks required permissions."
             )
         return current_user
+
+
+class RequireRateLimit:
+    def __init__(self, max_requests: int = 60, window_seconds: int = 60) -> None:
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+
+    async def __call__(self, current_user: Annotated[User, Depends(get_current_user)]) -> User:
+        from app.infrastructure.security.rate_limiter import rate_limiter
+
+        # Check tenant rate limit quota
+        await rate_limiter.check_rate_limit(
+            key_prefix="tenant",
+            identifier=current_user.tenant_id,
+            max_requests=self.max_requests * 5,
+            window_seconds=self.window_seconds
+        )
+        # Check user rate limit quota
+        await rate_limiter.check_rate_limit(
+            key_prefix="user",
+            identifier=str(current_user.id),
+            max_requests=self.max_requests,
+            window_seconds=self.window_seconds
+        )
+        return current_user
+
