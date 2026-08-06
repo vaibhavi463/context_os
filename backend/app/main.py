@@ -46,8 +46,11 @@ async def correlation_id_middleware(request: Request, call_next: Callable) -> Re
     response.headers["X-Correlation-ID"] = correlation_id
     return response
 
+from app.infrastructure.security.tenant_middleware import TenantIsolationMiddleware
+
 # Prometheus Telemetry Middleware
 app.middleware("http")(prometheus_telemetry_middleware)
+app.add_middleware(TenantIsolationMiddleware)
 
 # API V1 Router
 app.include_router(api_v1_router)
