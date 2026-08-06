@@ -1,0 +1,36 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "title": "ContextOS Operational Telemetry Dashboard",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "API Throughput (RPS)",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "sum(rate(http_request_duration_seconds_count[1m]))" }]
+    },
+    {
+      "type": "stat",
+      "title": "p95 API Latency (ms)",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) * 1000" }]
+    },
+    {
+      "type": "stat",
+      "title": "Tool Execution Count",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "targets": [{ "expr": "sum(tool_execution_total)" }]
+    },
+    {
+      "type": "stat",
+      "title": "Estimated LLM Cost ($)",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "targets": [{ "expr": "estimated_llm_cost_usd_total" }]
+    }
+  ],
+  "schemaVersion": 38,
+  "version": 1
+}
