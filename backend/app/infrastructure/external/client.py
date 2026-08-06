@@ -1,4 +1,5 @@
-from typing import Any, Callable, TypeVar, Awaitable
+from typing import Any, TypeVar
+from collections.abc import Callable, Awaitable
 import httpx
 import structlog
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -67,7 +68,7 @@ class ResilientHTTPClient:
             )
             if fallback:
                 return fallback()
-            raise exc
+            raise
 
 
 class ServiceClientRegistry:
