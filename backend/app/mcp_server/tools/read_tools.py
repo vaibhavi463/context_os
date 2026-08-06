@@ -64,42 +64,48 @@ class LookupGithubIssuesInput(BaseModel):
 
 
 async def lookup_github_issues_executor(args: dict[str, Any]) -> dict[str, Any]:
-    parsed = LookupGithubIssuesInput(**args)
-    if settings.GITHUB_TOKEN:
-        try:
-            async with httpx.AsyncClient() as client:
-                headers = {"Authorization": f"Bearer {settings.GITHUB_TOKEN}", "Accept": "application/vnd.github+json"}
-                url = f"https://api.github.com/search/issues?q=repo:{parsed.repo}+{parsed.query}"
-                resp = await client.get(url, headers=headers, timeout=5.0)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    items = [
-                        {
-                            "number": item["number"],
-                            "title": item["title"],
-                            "state": item["state"],
-                            "html_url": item["html_url"],
-                            "created_at": item["created_at"]
-                        }
-                        for item in data.get("items", [])[:5]
-                    ]
-                    return {"repository": parsed.repo, "issues": items}
-        except Exception:  # nosec B110 # noqa: BLE001, S110
-            pass
+    from app.infrastructure.external import client_registry
 
-    # Mock fallback
-    return {
-        "repository": parsed.repo,
-        "issues": [
+    parsed = LookupGithubIssuesInput(**args)
+    headers = {"Accept": "application/vnd.github+json"}
+    if settings.GITHUB_TOKEN:
+        headers["Authorization"] = f"Bearer {settings.GITHUB_TOKEN}"
+
+    url = f"https://api.github.com/search/issues?q=repo:{parsed.repo}+{parsed.query}"
+
+    def _fallback() -> dict[str, Any]:
+        return {
+            "repository": parsed.repo,
+            "issues": [
+                {
+                    "number": 42,
+                    "title": f"Fix connection pool leak under high concurrency: {parsed.query}",
+                    "state": "open",
+                    "html_url": f"https://github.com/{parsed.repo}/issues/42",
+                    "created_at": "2026-08-04T10:00:00Z",
+                }
+            ],
+            "fallback_used": True,
+        }
+
+    client = client_registry.get_client("github_api", timeout=5.0)
+    try:
+        data = await client.get_json(url, headers=headers, fallback=_fallback)
+        if "issues" in data:
+            return data
+        items = [
             {
-                "number": 42,
-                "title": f"Fix connection pool leak under high concurrency: {parsed.query}",
-                "state": "open",
-                "html_url": f"https://github.com/{parsed.repo}/issues/42",
-                "created_at": "2026-08-04T10:00:00Z"
+                "number": item["number"],
+                "title": item["title"],
+                "state": item["state"],
+                "html_url": item["html_url"],
+                "created_at": item["created_at"],
             }
+            for item in data.get("items", [])[:5]
         ]
-    }
+        return {"repository": parsed.repo, "issues": items}
+    except Exception:
+        return _fallback()
 
 
 # 4. get_audit_history
