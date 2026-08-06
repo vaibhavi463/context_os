@@ -1,5 +1,5 @@
-from typing import Any, TypeVar
-from collections.abc import Callable, Awaitable
+from typing import Any
+from collections.abc import Callable
 import httpx
 import structlog
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -7,8 +7,6 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 from app.infrastructure.external.circuit_breaker import CircuitBreaker, CircuitBreakerOpenException
 
 logger = structlog.get_logger(__name__)
-
-T = TypeVar("T")
 
 
 class ResilientHTTPClient:
@@ -42,11 +40,12 @@ class ResilientHTTPClient:
         params: dict[str, Any] | None = None,
         fallback: Callable[[], dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
-        async def _execute_http_request() -> dict[str, Any]:
+        async def _raw_request() -> dict[str, Any]:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.get(url, headers=headers, params=params)
                 response.raise_for_status()
-                return response.json()  # type: ignore[no-any-return]
+                data = response.json()
+                return data if isinstance(data, dict) else {"data": data}
 
         @retry(
             stop=stop_after_attempt(self.max_retries),
@@ -54,11 +53,14 @@ class ResilientHTTPClient:
             retry=retry_if_exception_type((httpx.HTTPStatusError, httpx.RequestError)),
             reraise=True,
         )
-        async def _retrying_call() -> dict[str, Any]:
-            return await self.circuit_breaker.call(_execute_http_request)
+        async def _execute_with_retry() -> dict[str, Any]:
+            return await _raw_request()
+
+        async def _circuit_wrapped_call() -> dict[str, Any]:
+            return await self.circuit_breaker.call(_execute_with_retry)
 
         try:
-            return await _retrying_call()
+            return await _circuit_wrapped_call()
         except (httpx.HTTPError, CircuitBreakerOpenException) as exc:
             logger.error(
                 f"ResilientHTTPClient '{self.service_name}' request failed",
