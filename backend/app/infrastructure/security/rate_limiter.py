@@ -1,7 +1,10 @@
+import inspect
 import time
-from fastapi import HTTPException, status
+
 import redis.asyncio as redis
 import structlog
+from fastapi import HTTPException, status
+from redis.exceptions import RedisError
 
 logger = structlog.get_logger(__name__)
 
@@ -31,7 +34,10 @@ class RedisSlidingWindowRateLimiter:
         redis_key = f"ratelimit:{key_prefix}:{identifier}"
 
         try:
-            async with self.redis.pipeline(transaction=True) as pipe:
+            pipeline = self.redis.pipeline(transaction=True)
+            if inspect.isawaitable(pipeline):
+                pipeline = await pipeline
+            async with pipeline as pipe:
                 # 1. Remove timestamps older than current window
                 pipe.zremrangebyscore(redis_key, 0, clear_before)
                 # 2. Count requests in current window
@@ -58,7 +64,7 @@ class RedisSlidingWindowRateLimiter:
                 )
         except HTTPException:
             raise
-        except Exception as exc:
+        except RedisError as exc:
             logger.error("Redis rate limiter check error", error=str(exc))
             # Fail open for system resilience if Redis connection fails
             return
