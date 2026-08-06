@@ -1,6 +1,7 @@
 import time
 import structlog
-from typing import Callable, Any, TypeVar, Awaitable
+from typing import Any, TypeVar
+from collections.abc import Callable, Awaitable
 
 logger = structlog.get_logger(__name__)
 
@@ -9,7 +10,6 @@ T = TypeVar("T")
 
 class CircuitBreakerOpenException(Exception):
     """Raised when an external call is attempted while the circuit is OPEN."""
-    pass
 
 
 class CircuitBreaker:
@@ -71,4 +71,4 @@ class CircuitBreaker:
                 self.state = "OPEN"
                 self.last_state_change = now
                 logger.error(f"CircuitBreaker '{self.name}' threshold reached. Transitioned to OPEN.")
-            raise exc
+            raise
